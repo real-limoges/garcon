@@ -1,0 +1,36 @@
+cabal-version:      3.14
+name:               garcon
+version:            0.1.0.0
+license:            BSD-3-Clause
+license-file:       LICENSE
+author:             Real Limoges
+maintainer:         b.real.limoges@gmail.com
+build-type:         Simple
+
+common warnings
+    ghc-options: -Wall
+
+library
+    import:           warnings
+    hs-source-dirs:   src
+    default-language: GHC2024
+    exposed-modules:
+        Garcon.API
+        Garcon.App
+        Garcon.Server
+    build-depends:
+        base ^>=4.21.0.0
+      , chompsky
+      , servant-server
+      , wai
+      , warp
+
+executable garcon
+    import:           warnings
+    main-is:          Main.hs
+    hs-source-dirs:   app
+    default-language: GHC2024
+    build-depends:
+        base ^>=4.21.0.0
+      , garcon
+      , warp
