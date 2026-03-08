@@ -19,7 +19,7 @@ jobs:
       - name: Checkout chompsky
         uses: actions/checkout@v4
         with:
-          repository: reallimoges/chompsky
+          repository: real-limoges/chompsky
           path: chompsky
 
       - name: Setup Haskell
