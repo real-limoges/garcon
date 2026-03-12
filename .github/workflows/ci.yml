@@ -7,8 +7,10 @@ on:
     branches: [main]
 
 jobs:
-  build:
+  build-and-test:
+    name: Build & Test (GHC 9.12.2)
     runs-on: ubuntu-latest
+    container: haskell:9.12.2
 
     steps:
       - name: Checkout garcon
@@ -28,24 +30,29 @@ jobs:
           repository: real-limoges/hazy
           path: hazy
 
-      - name: Setup Haskell
-        uses: haskell-actions/setup@v2
-        with:
-          ghc-version: "9.12.2"
-          cabal-version: "latest"
-
       - name: Cache cabal store
         uses: actions/cache@v4
         with:
-          path: ~/.cabal/store
-          key: ${{ runner.os }}-cabal-${{ hashFiles('garcon/garcon.cabal', 'chompsky/chompsky.cabal', 'hazy/hazy.cabal') }}
+          path: |
+            /github/home/.local/state/cabal
+            /github/home/.cache/cabal/packages
+          key: ${{ runner.os }}-ghc-9.12.2-store-${{ hashFiles('garcon/garcon.cabal', 'chompsky/chompsky.cabal', 'hazy/hazy.cabal', 'garcon/cabal.project') }}
           restore-keys: |
-            ${{ runner.os }}-cabal-
+            ${{ runner.os }}-ghc-9.12.2-store-
 
-      - name: Build dependencies
-        working-directory: garcon
-        run: cabal update && cabal build --only-dependencies
+      - name: Cache build artifacts
+        uses: actions/cache@v4
+        with:
+          path: garcon/dist-newstyle
+          key: ${{ runner.os }}-ghc-9.12.2-dist-${{ hashFiles('garcon/garcon.cabal', 'chompsky/chompsky.cabal', 'hazy/hazy.cabal', 'garcon/src/**/*.hs', 'garcon/test/**/*.hs') }}
+
+      - name: Update cabal index
+        run: cabal update
 
       - name: Build
         working-directory: garcon
-        run: cabal build all
+        run: cabal build all --enable-optimization=2
+
+      - name: Test
+        working-directory: garcon
+        run: cabal test --test-show-details=direct
