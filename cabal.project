@@ -1,6 +1,14 @@
 packages:
     .
-    ../chompsky
-    ../hazy
+
+source-repository-package
+    type: git
+    location: https://github.com/real-limoges/chompsky.git
+    tag: 443fda2e151f943efa4e3236a2b7b80646b78a7f
+
+source-repository-package
+    type: git
+    location: https://github.com/real-limoges/hazy.git
+    tag: fcd26d1860eb959ce270bff539da3f66ec14e5ea
 
 constraints: wai-app-static -crypton

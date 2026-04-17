@@ -1,0 +1,6 @@
+packages:
+    .
+    ../chompsky
+    ../hazy
+
+constraints: wai-app-static -crypton
