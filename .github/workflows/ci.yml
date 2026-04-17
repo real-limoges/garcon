@@ -1,6 +1,7 @@
 name: CI
 
 on:
+  workflow_call:
   push:
     branches: [main]
   pull_request:
@@ -13,22 +14,10 @@ jobs:
     container: haskell:9.12.2
 
     steps:
-      - name: Checkout garcon
-        uses: actions/checkout@v4
-        with:
-          path: garcon
+      - uses: actions/checkout@v4
 
-      - name: Checkout chompsky
-        uses: actions/checkout@v4
-        with:
-          repository: real-limoges/chompsky
-          path: chompsky
-
-      - name: Checkout hazy
-        uses: actions/checkout@v4
-        with:
-          repository: real-limoges/hazy
-          path: hazy
+      - name: Show cabal paths
+        run: cabal path
 
       - name: Cache cabal store
         uses: actions/cache@v4
@@ -36,23 +25,21 @@ jobs:
           path: |
             /github/home/.local/state/cabal
             /github/home/.cache/cabal/packages
-          key: ${{ runner.os }}-ghc-9.12.2-store-${{ hashFiles('garcon/garcon.cabal', 'chompsky/chompsky.cabal', 'hazy/hazy.cabal', 'garcon/cabal.project') }}
+          key: ${{ runner.os }}-ghc-9.12.2-store-${{ hashFiles('garcon.cabal', 'cabal.project') }}
           restore-keys: |
             ${{ runner.os }}-ghc-9.12.2-store-
 
       - name: Cache build artifacts
         uses: actions/cache@v4
         with:
-          path: garcon/dist-newstyle
-          key: ${{ runner.os }}-ghc-9.12.2-dist-${{ hashFiles('garcon/garcon.cabal', 'chompsky/chompsky.cabal', 'hazy/hazy.cabal', 'garcon/src/**/*.hs', 'garcon/test/**/*.hs') }}
+          path: dist-newstyle
+          key: ${{ runner.os }}-ghc-9.12.2-dist-${{ hashFiles('garcon.cabal', 'cabal.project', 'src/**/*.hs', 'app/**/*.hs') }}
 
       - name: Update cabal index
         run: cabal update
 
       - name: Build
-        working-directory: garcon
         run: cabal build all --enable-optimization=2
 
       - name: Test
-        working-directory: garcon
         run: cabal test --test-show-details=direct
